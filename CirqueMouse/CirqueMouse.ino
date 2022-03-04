@@ -67,7 +67,7 @@ void loop()
                 // Last state was also valid, calculate deltas
                 int16_t x_delta = (touchData.x_pos >> 2) - (xpos_last >> 2); 
                 int16_t y_delta = (touchData.y_pos >> 2) - (ypos_last >> 2); 
-                Mouse.move(-x_delta, -y_delta);
+                Mouse.move(-(x_delta << 1), -(y_delta << 1));
                 xpos_last = touchData.x_pos;
                 ypos_last = touchData.y_pos;
             }
