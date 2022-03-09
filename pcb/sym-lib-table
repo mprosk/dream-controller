@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "teensy")(type "KiCad")(uri "${KIPRJMOD}/teensy/symbols/teensy.kicad_sym")(options "")(descr ""))
+)
