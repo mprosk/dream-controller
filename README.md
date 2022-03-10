@@ -4,4 +4,11 @@ Joycon meets Steam Controller
 Nintendo Switch hack that replaces the joystick with a capacitive touchpad. Includes USB HID mouse emulation.
 Inspired by [Matteo Pisani](https://medium.com/@matteo.pisani.91/how-i-hacked-nintendo-joy-con-controller-8ac22d75b0b8)
 
-Uses a Cirque Glidepoint
+| Component              | Description                 | Link                                                         |
+| ---------------------- | --------------------------- | ------------------------------------------------------------ |
+| Cirque Glidepoint 23mm | Capacitive touch sensor     | [Mouser](https://www.mouser.com/ProductDetail/Cirque/TM023023-2024-000?qs=sGAEpiMZZMv0NwlthflBi9N1a4ghWNXsADUFmDElQZ8%3D) |
+| MCP4922                | Digital to analog converter | [Mouser](https://www.mouser.com/ProductDetail/Microchip-Technology/MCP4922-E-ST?qs=iRhCjdSJZe6gRerFwLixKQ%3D%3D) |
+| Teensy LC              | Microcontroller             | [PJRC](https://www.pjrc.com/store/teensylc.html)             |
+| FFC Cable              | 12 pin 0.5mm pitch          | [Mouser](https://www.mouser.com/c/connectors/ffc-fpc/ffc-fpc-jumper-cables/?number%20of%20conductors=12%20Conductor&pitch=0.5%20mm&instock=y&sort=pricing) |
+| FFC Connector          | 12 pin 0.5mm pitch          |                                                              |
+
