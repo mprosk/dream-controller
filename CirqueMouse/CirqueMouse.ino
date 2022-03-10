@@ -1,5 +1,10 @@
 #include "pinnacle.h"
 
+#define DAC_MAX (2482)
+#define DAC_HALF  (DAC_MAX >> 1)
+
+#define PIN_DAC (A14)
+
 static absData_t touchData;
 
 static uint16_t xpos_last = 0;
@@ -15,6 +20,10 @@ void setup()
 //  while(!Serial); // needed for USB
 
   pinMode(LED_0, OUTPUT);
+
+  // Teensy 3.2 DAC
+  pinMode(PIN_DAC, OUTPUT);
+  analogWriteResolution(12);
 
   Pinnacle_Init();
 
@@ -45,15 +54,25 @@ void loop()
         {
             Serial.println("liftoff");
             state_last = LIFTOFF;
+
+            // Put the DAC in the middle
+            analogWrite(PIN_DAC, DAC_HALF);
         }
         else if(touchData.hovering)
         {
             Serial.println("hovering");
             state_last = HOVERING;
+
+            // Put the DAC in the middle
+            analogWrite(PIN_DAC, DAC_HALF);
         }
         else
         {
             Serial.println("valid");
+
+            // Update the DAC
+            uint16_t dac_x = map(touchData.x_pos, PINNACLE_X_LOWER, PINNACLE_X_UPPER, 0, DAC_MAX);
+            analogWrite(PIN_DAC, dac_x);
 
             // Update the mouse
             if (state_last != VALID)
@@ -78,4 +97,3 @@ void loop()
     }
     AssertSensorLED(touchData.touchDown);
 }
-
