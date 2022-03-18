@@ -1,3 +1,4 @@
 (fp_lib_table
-  (lib (name "footprints")(type "KiCad")(uri "${KIPRJMOD}/teensy/footprints")(options "")(descr ""))
+  (lib (name "teensy")(type "KiCad")(uri "${KIPRJMOD}/teensy/footprints")(options "")(descr ""))
+  (lib (name "Dream Controller")(type "KiCad")(uri "${KIPRJMOD}/Dream Controller.pretty")(options "")(descr ""))
 )
