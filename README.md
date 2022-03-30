@@ -11,4 +11,3 @@ Inspired by [Matteo Pisani](https://medium.com/@matteo.pisani.91/how-i-hacked-ni
 | Teensy LC              | Microcontroller             | [PJRC](https://www.pjrc.com/store/teensylc.html)             |
 | FFC Cable              | 12 pin 0.5mm pitch          | [Mouser](https://www.mouser.com/c/connectors/ffc-fpc/ffc-fpc-jumper-cables/?number%20of%20conductors=12%20Conductor&pitch=0.5%20mm&instock=y&sort=pricing) |
 | FFC Connector          | 12 pin 0.5mm pitch          | [Mouser](https://www.mouser.com/ProductDetail/Amphenol-Aorora/F31K-1A7H1-11012?qs=xZ%2FP%252Ba9zWqZ7VOcLJC0XAg%3D%3D) |
-
