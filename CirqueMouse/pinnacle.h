@@ -40,7 +40,6 @@
 #define SCL_PIN   19
 
 #define LED_0     21
-#define LED_1     20
 
 // Masks for Cirque Register Access Protocol (RAP)
 #define WRITE_MASK  0x80

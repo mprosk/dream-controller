@@ -1,9 +1,12 @@
 #include "pinnacle.h"
 
-#define DAC_MAX (2482)
+#define DAC_MAX (4095)
 #define DAC_HALF  (DAC_MAX >> 1)
 
-#define PIN_DAC (A14)
+#define PIN_DAC_LATCH (2)
+#define PIN_DAC_CS    (14)
+#define PIN_MODE_BTN  (3)
+#define PIN_LED_MODE  (4)
 
 static absData_t touchData;
 
@@ -12,24 +15,30 @@ static uint16_t ypos_last = 0;
 static touchState_t state_last = LIFTOFF;
 
 
-
-// setup() gets called once at power-up, sets up serial debug output and Cirque's Pinnacle ASIC.
 void setup()
 {
-  Serial.begin(115200);
-//  while(!Serial); // needed for USB
+    Serial.begin(115200);
 
-  pinMode(LED_0, OUTPUT);
-
-  // Teensy 3.2 DAC
-  pinMode(PIN_DAC, OUTPUT);
-  analogWriteResolution(12);
-
-  Pinnacle_Init();
-
-  Serial.println();
-  Serial.println("X\tY\tZ\tBtn\tData");
-  Pinnacle_EnableFeed(true);
+    // Init GPIO
+    pinMode(PIN_MODE_BTN, INPUT_PULLUP);
+    pinMode(PIN_LED_MODE, OUTPUT);
+  
+    // Init DAC
+    pinMode(PIN_DAC_LATCH, OUTPUT);
+    pinMode(PIN_DAC_CS, OUTPUT);
+    digitalWrite(PIN_DAC_LATCH, HIGH);
+    digitalWrite(PIN_DAC_CS, HIGH);
+    SPI1.begin();
+    SPI1.beginTransaction(SPISettings(1e6, MSBFIRST, SPI_MODE0));
+    
+  
+    pinMode(LED_0, OUTPUT);
+  
+    Pinnacle_Init();
+  
+    Serial.println();
+    Serial.println("X\tY\tData");
+    Pinnacle_EnableFeed(true);
 }
 
 // loop() continuously checks to see if data-ready (DR) is high. If so, reads and reports touch data to terminal.
@@ -46,25 +55,21 @@ void loop()
         Serial.print('\t');
         Serial.print(touchData.y_pos);
         Serial.print('\t');
-        Serial.print(touchData.z_pos);
-        Serial.print('\t');
-        Serial.print(touchData.buttonFlags);
-        Serial.print('\t');
-        if(Pinnacle_zIdlePacket(&touchData))
+        if(Pinnacle_zIdlePacket(&touchData) || touchData.hovering)
         {
-            Serial.println("liftoff");
-            state_last = LIFTOFF;
-
+            if (touchData.hovering)
+            {
+                Serial.println("hovering");
+                state_last = HOVERING;
+            }
+            else
+            {
+                Serial.println("liftoff");
+                state_last = LIFTOFF;
+            }
+            
             // Put the DAC in the middle
-            analogWrite(PIN_DAC, DAC_HALF);
-        }
-        else if(touchData.hovering)
-        {
-            Serial.println("hovering");
-            state_last = HOVERING;
-
-            // Put the DAC in the middle
-            analogWrite(PIN_DAC, DAC_HALF);
+            dac_set_xy(DAC_HALF, DAC_HALF);
         }
         else
         {
@@ -72,7 +77,9 @@ void loop()
 
             // Update the DAC
             uint16_t dac_x = map(touchData.x_pos, PINNACLE_X_LOWER, PINNACLE_X_UPPER, 0, DAC_MAX);
-            analogWrite(PIN_DAC, dac_x);
+            uint16_t dac_y = map(touchData.y_pos, PINNACLE_Y_LOWER, PINNACLE_Y_UPPER, 0, DAC_MAX);
+            Serial.print("DAC: "); Serial.print(dac_x); Serial.print(" "); Serial.println(dac_y);
+            dac_set_xy(dac_x, dac_y);
 
             // Update the mouse
             if (state_last != VALID)
@@ -96,4 +103,23 @@ void loop()
         }
     }
     AssertSensorLED(touchData.touchDown);
+}
+
+void dac_set_xy(uint16_t xval, uint16_t yval)
+{
+    // Write X value to A channel
+    digitalWrite(PIN_DAC_CS, LOW);
+    SPI1.transfer(0b01110000 | (xval >> 8));
+    SPI1.transfer(xval & 0xFF);
+    digitalWrite(PIN_DAC_CS, HIGH);
+    digitalWrite(PIN_DAC_LATCH, LOW);
+    digitalWrite(PIN_DAC_LATCH, HIGH);
+
+    // Write Y value to B channel
+    digitalWrite(PIN_DAC_CS, LOW);
+    SPI1.transfer(0b11110000 | (yval >> 8));
+    SPI1.transfer(yval & 0xFF);
+    digitalWrite(PIN_DAC_CS, HIGH);
+    digitalWrite(PIN_DAC_LATCH, LOW);
+    digitalWrite(PIN_DAC_LATCH, HIGH);
 }
