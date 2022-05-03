@@ -35,7 +35,7 @@ void Pinnacle_Init()
   RAP_Write(0x0A, Z_IDLE_COUNT);
 
   // These functions are required for use with thick overlays (curved)
-  setAdcAttenuation(ADC_ATTENUATE_2X);
+  setAdcAttenuation(ADC_ATTENUATE_1X);
   tuneEdgeSensitivity();
 
   Serial.println("Pinnacle Initialized...");
