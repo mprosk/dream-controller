@@ -38,7 +38,7 @@ void Pinnacle_Init()
   setAdcAttenuation(ADC_ATTENUATE_1X);
   tuneEdgeSensitivity();
 
-  Serial.println("Pinnacle Initialized...");
+  // Serial.println("Pinnacle Initialized...");
 }
 
 // Reads XYZ data from Pinnacle registers 0x14 through 0x17
@@ -98,28 +98,28 @@ void setAdcAttenuation(uint8_t adcGain)
 {
   uint8_t temp = 0x00;
 
-  Serial.println();
-  Serial.println("Setting ADC gain...");
+  // Serial.println();
+  // Serial.println("Setting ADC gain...");
   ERA_ReadBytes(0x0187, &temp, 1);
   temp &= 0x3F; // clear top two bits
   temp |= adcGain;
   ERA_WriteByte(0x0187, temp);
   ERA_ReadBytes(0x0187, &temp, 1);
-  Serial.print("ADC gain set to:\t");
-  Serial.print(temp &= 0xC0, HEX);
+  // Serial.print("ADC gain set to:\t");
+  // Serial.print(temp &= 0xC0, HEX);
   switch(temp)
   {
     case ADC_ATTENUATE_1X:
-      Serial.println(" (X/1)");
+      // Serial.println(" (X/1)");
       break;
     case ADC_ATTENUATE_2X:
-      Serial.println(" (X/2)");
+      // Serial.println(" (X/2)");
       break;
     case ADC_ATTENUATE_3X:
-      Serial.println(" (X/3)");
+      // Serial.println(" (X/3)");
       break;
     case ADC_ATTENUATE_4X:
-      Serial.println(" (X/4)");
+      // Serial.println(" (X/4)");
       break;
     default:
       break;
@@ -131,25 +131,25 @@ void tuneEdgeSensitivity()
 {
   uint8_t temp = 0x00;
 
-  Serial.println();
-  Serial.println("Setting xAxis.WideZMin...");
+  // Serial.println();
+  // Serial.println("Setting xAxis.WideZMin...");
   ERA_ReadBytes(0x0149, &temp, 1);
-  Serial.print("Current value:\t");
-  Serial.println(temp, HEX);
+  // Serial.print("Current value:\t");
+  // Serial.println(temp, HEX);
   ERA_WriteByte(0x0149,  0x04);
   ERA_ReadBytes(0x0149, &temp, 1);
-  Serial.print("New value:\t");
-  Serial.println(temp, HEX);
+  // Serial.print("New value:\t");
+  // Serial.println(temp, HEX);
 
-  Serial.println();
-  Serial.println("Setting yAxis.WideZMin...");
+  // Serial.println();
+  // Serial.println("Setting yAxis.WideZMin...");
   ERA_ReadBytes(0x0168, &temp, 1);
-  Serial.print("Current value:\t");
-  Serial.println(temp, HEX);
+  // Serial.print("Current value:\t");
+  // Serial.println(temp, HEX);
   ERA_WriteByte(0x0168,  0x03);
   ERA_ReadBytes(0x0168, &temp, 1);
-  Serial.print("New value:\t");
-  Serial.println(temp, HEX);
+  // Serial.print("New value:\t");
+  // Serial.println(temp, HEX);
 }
 
 // This function identifies when a finger is "hovering" so your system can choose to ignore them.

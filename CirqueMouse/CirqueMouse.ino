@@ -15,8 +15,13 @@ static uint16_t xpos_last = 0;
 static uint16_t ypos_last = 0;
 static touchState_t state_last = LIFTOFF;
 
-static bool mouse_only = false;
-static uint8_t mode_last = 0;
+typedef enum _output_mode {
+    STICK,
+    MOUSE,
+} output_mode_t;
+
+static output_mode_t output_mode = STICK;
+static uint8_t mode_btn_last = 0;
 
 
 void setup()
@@ -27,7 +32,7 @@ void setup()
     pinMode(PIN_MODE_BTN, INPUT_PULLUP);
     pinMode(PIN_LED_ASSIGN, OUTPUT);
     pinMode(PIN_LED_TURBO, OUTPUT);
-    mode_last = digitalRead(PIN_MODE_BTN);
+    mode_btn_last = digitalRead(PIN_MODE_BTN);
 
     // Init DAC
     pinMode(PIN_DAC_LATCH, OUTPUT);
@@ -40,8 +45,8 @@ void setup()
     // Init Touch Sensor
     Pinnacle_Init();
   
-    Serial.println();
-    Serial.println("X\tY\tData");
+    // // Serial.println();
+    // // Serial.println("X\tY\tData");
     Pinnacle_EnableFeed(true);
 }
 
@@ -50,17 +55,23 @@ void loop()
 {
     // Check mode
     uint8_t mode = digitalRead(PIN_MODE_BTN);
-    if ((mode != mode_last) && (mode == LOW))
+    if ((mode != mode_btn_last) && (mode == LOW))
     {
-        mouse_only = !mouse_only;
-        digitalWrite(PIN_LED_TURBO, mouse_only);
-        if (mouse_only)
+        
+        if (output_mode == STICK)
         {
+            output_mode = MOUSE;
+
             // Put the DAC in the middle
             dac_set_xy(DAC_HALF, DAC_HALF);
         }
+        else
+        {
+            output_mode = STICK;
+        }
+        digitalWrite(PIN_LED_TURBO, output_mode);
     }
-    mode_last = mode;
+    mode_btn_last = mode;
 
     // Process touch data
     if(DR_Asserted())
@@ -70,20 +81,20 @@ void loop()
 
         //    ScaleData(&touchData, 1024, 1024);      // Scale coordinates to arbitrary X, Y resolution
 
-        Serial.print(touchData.x_pos);
-        Serial.print('\t');
-        Serial.print(touchData.y_pos);
-        Serial.print('\t');
+        // Serial.print(touchData.x_pos);
+        // Serial.print('\t');
+        // Serial.print(touchData.y_pos);
+        // Serial.print('\t');
         if(Pinnacle_zIdlePacket(&touchData) || touchData.hovering)
         {
             if (touchData.hovering)
             {
-                Serial.println("hovering");
+                // Serial.println("hovering");
                 state_last = HOVERING;
             }
             else
             {
-                Serial.println("liftoff");
+                // Serial.println("liftoff");
                 state_last = LIFTOFF;
             }
             
@@ -92,13 +103,13 @@ void loop()
         }
         else
         {
-            Serial.println("valid");
+            // Serial.println("valid");
 
             // Update the DAC
             uint16_t dac_x = map(touchData.x_pos, PINNACLE_X_LOWER, PINNACLE_X_UPPER, DAC_MAX, 0);
             uint16_t dac_y = map(touchData.y_pos, PINNACLE_Y_LOWER, PINNACLE_Y_UPPER, DAC_MAX, 0);
-            Serial.print("DAC: "); Serial.print(dac_x); Serial.print(" "); Serial.println(dac_y);
-            if (!mouse_only)
+            // Serial.print("DAC: "); // Serial.print(dac_x); // Serial.print(" "); // Serial.println(dac_y);
+            if (output_mode == STICK)
             {
                 dac_set_xy(dac_y, dac_x);
             }
@@ -115,9 +126,15 @@ void loop()
                 // Last state was also valid, calculate deltas
                 int16_t x_delta = (touchData.x_pos >> 2) - (xpos_last >> 2); 
                 int16_t y_delta = (touchData.y_pos >> 2) - (ypos_last >> 2); 
-                Mouse.move((y_delta << 1), -(x_delta << 1));
+                
                 xpos_last = touchData.x_pos;
                 ypos_last = touchData.y_pos;
+
+                if (output_mode == MOUSE) 
+                {
+                    Mouse.move((y_delta << 1), -(x_delta << 1));
+                }
+                
             }
 
             state_last = VALID;
